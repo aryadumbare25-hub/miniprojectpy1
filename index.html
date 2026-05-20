@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arya Finance Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+  <style>
+    :root{
+      --bg0:#07111f;
+      --bg1:#0d1830;
+      --bg2:#111f3f;
+      --panel:rgba(255,255,255,.08);
+      --panel2:rgba(255,255,255,.12);
+      --text:#eef4ff;
+      --muted:#9caacc;
+      --accent:#7c5cff;
+      --accent2:#35d0ba;
+      --danger:#ff6b6b;
+      --warning:#ffd166;
+      --success:#4ade80;
+      --shadow:0 20px 60px rgba(0,0,0,.32);
+      --radius:24px;
+      --radius2:18px;
+      --line:rgba(255,255,255,.10);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,92,255,.20), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(53,208,186,.18), transparent 38%),
+        linear-gradient(135deg,var(--bg0),var(--bg1) 45%,var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    body.light{
+      --bg0:#edf2ff;
+      --bg1:#f5f7ff;
+      --bg2:#e8eefc;
+      --panel:rgba(255,255,255,.72);
+      --panel2:rgba(255,255,255,.92);
+      --text:#13223f;
+      --muted:#63708d;
+      --line:rgba(18,34,63,.08);
+      --shadow:0 18px 50px rgba(18,34,63,.10);
+    }
+
+    .blob{
+      position:fixed;
+      border-radius:50%;
+      filter:blur(100px);
+      opacity:.35;
+      z-index:0;
+      pointer-events:none;
+    }
+    .blob.a{width:320px;height:320px;top:20px;left:-70px;background:#7c5cff}
+    .blob.b{width:380px;height:380px;bottom:-90px;right:-100px;background:#35d0ba}
+
+    .app{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:300px 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      padding:24px;
+      border-right:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      backdrop-filter:blur(18px);
+    }
+
+    .brand{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      margin-bottom:22px;
+    }
+    .logo{
+      width:58px;height:58px;
+      border-radius:20px;
+      display:grid;
+      place-items:center;
+      font-size:26px;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(135deg,var(--accent),#9d8cff);
+      box-shadow:var(--shadow);
+    }
+    .brand h1{margin:0;font-size:20px}
+    .brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+
+    .panel,.stat,.menu-btn,.btn,.field input,.field select,.box,.toast,.mini,.search{
+      border:1px solid var(--line);
+      background:var(--panel);
+      backdrop-filter:blur(16px);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+
+    .welcome{
+      padding:18px;
+      margin-bottom:18px;
+    }
+    .welcome h2{margin:0 0 8px;font-size:18px}
+    .welcome p{margin:0;color:var(--muted)}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .chip{
+      padding:7px 12px;
+      font-size:12px;
+      border-radius:999px;
+      background:rgba(124,92,255,.16);
+    }
+
+    .menu{display:grid;gap:10px;margin:18px 0}
+    .menu-btn,.btn{
+      border:none;
+      color:var(--text);
+      cursor:pointer;
+      transition:.25s ease;
+      font-weight:700;
+    }
+    .menu-btn{
+      padding:14px 16px;
+      text-align:left;
+      background:var(--panel);
+    }
+    .menu-btn:hover,.menu-btn.active{
+      background:linear-gradient(135deg,var(--accent),#9d8cff);
+      transform:translateY(-1px);
+    }
+    .btn{
+      padding:13px 16px;
+      background:var(--panel2);
+    }
+    .danger{background:rgba(255,107,107,.16)}
+    .btn:hover{transform:translateY(-1px)}
+
+    .main{padding:24px}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      margin-bottom:20px;
+    }
+    .topbar h2{margin:0;font-size:30px;letter-spacing:-.03em}
+    .topbar p{margin:6px 0 0;color:var(--muted)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap}
+
+    .tab{display:none;animation:fade .28s ease}
+    .tab.active{display:block}
+    @keyframes fade{from{opacity:.3;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .stat{
+      padding:20px;
+      min-height:122px;
+    }
+    .stat span{color:var(--muted);font-size:13px}
+    .stat h3{margin:10px 0 0;font-size:28px;letter-spacing:-.03em}
+    .income{border-left:4px solid var(--success)}
+    .expense{border-left:4px solid var(--danger)}
+    .balance{border-left:4px solid var(--accent)}
+    .savings{border-left:4px solid var(--warning)}
+
+    .grid2{
+      display:grid;
+      grid-template-columns:1.35fr .95fr;
+      gap:18px;
+      margin-bottom:18px;
+    }
+
+    .panel{
+      padding:20px;
+    }
+    .head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:baseline;
+      margin-bottom:16px;
+    }
+    .head h3{margin:0;font-size:18px}
+    .head span{color:var(--muted);font-size:13px}
+
+    .summary-grid,.budget-grid,.goal-grid{
+      display:grid;
+      gap:12px;
+    }
+
+    .mini{
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.05);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+    }
+    .mini strong{display:block;font-size:16px}
+    .mini small{color:var(--muted)}
+
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:860px}
+    th,td{
+      padding:14px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+    }
+    th{color:var(--muted);font-size:13px}
+    td{font-size:14px}
+    .tag{
+      display:inline-flex;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .tag.income{background:rgba(74,222,128,.15);color:#4ade80}
+    .tag.expense{background:rgba(255,107,107,.15);color:#ff6b6b}
+    .action{
+      padding:10px 12px;
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      color:var(--text);
+      background:rgba(255,255,255,.12);
+    }
+
+    .form{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+    }
+    .field.full{grid-column:1 / -1}
+    .field label{
+      display:block;
+      margin-bottom:8px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .field input,.field select,.search{
+      width:100%;
+      padding:14px 16px;
+      color:var(--text);
+      outline:none;
+      border:none;
+      background:var(--panel2);
+    }
+    .field input::placeholder{color:var(--muted)}
+
+    .primary{
+      width:100%;
+      padding:14px 16px;
+      border:none;
+      border-radius:14px;
+      color:#fff;
+      font-weight:800;
+      background:linear-gradient(135deg,var(--accent),#9d8cff);
+      cursor:pointer;
+    }
+
+    .bar{
+      margin-top:10px;
+      height:10px;
+      background:rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+    }
+
+    .tip,.result{
+      padding:18px;
+      min-height:170px;
+    }
+    .result{min-height:auto;margin-top:14px}
+    .search{
+      max-width:300px;
+      border-radius:16px;
+    }
+
+    .toast{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      padding:14px 18px;
+      color:#fff;
+      background:rgba(0,0,0,.75);
+      opacity:0;
+      transform:translateY(20px);
+      transition:.28s ease;
+      z-index:100;
+      pointer-events:none;
+    }
+    .toast.show{opacity:1;transform:none}
+
+    .toprow{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+
+    @media (max-width:1100px){
+      .app{grid-template-columns:1fr}
+      .sidebar{border-right:none;border-bottom:1px solid var(--line)}
+      .stats,.grid2{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:700px){
+      .topbar,.head{flex-direction:column;align-items:flex-start}
+      .stats,.grid2,.form{grid-template-columns:1fr}
+      .topbar h2{font-size:24px}
+      .search{max-width:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">₹</div>
+        <div>
+          <h1>Arya Finance Pro</h1>
+          <p>Daily money tracker</p>
+        </div>
+      </div>
+
+      <div class="welcome">
+        <h2 id="greet">Welcome!</h2>
+        <p id="sub">Build a better money habit with a clean personal dashboard.</p>
+        <div class="chips">
+          <span class="chip">Secure in browser</span>
+          <span class="chip">Responsive</span>
+          <span class="chip">Daily use</span>
+        </div>
+      </div>
+
+      <div class="menu">
+        <button class="menu-btn active" data-tab="dash">Dashboard</button>
+        <button class="menu-btn" data-tab="add">Add Transaction</button>
+        <button class="menu-btn" data-tab="budgets">Budgets</button>
+        <button class="menu-btn" data-tab="goals">Goals</button>
+        <button class="menu-btn" data-tab="insights">Insights</button>
+      </div>
+
+      <button class="btn danger" id="resetAll">Reset All Data</button>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2>Premium Personal Finance Dashboard</h2>
+          <p>Track spending, manage budgets, build savings goals, and review your financial habits.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="themeToggle">🌙 Dark Mode</button>
+          <button class="btn" id="exportBtn">⬇ Export JSON</button>
+        </div>
+      </div>
+
+      <section id="dash" class="tab active">
+        <div class="stats">
+          <div class="stat income"><span>Total Income</span><h3 id="incomeVal">₹0</h3></div>
+          <div class="stat expense"><span>Total Expense</span><h3 id="expenseVal">₹0</h3></div>
+          <div class="stat balance"><span>Balance</span><h3 id="balanceVal">₹0</h3></div>
+          <div class="stat savings"><span>Savings Rate</span><h3 id="savingsVal">0%</h3></div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <div class="head">
+              <h3>Spending Chart</h3>
+              <span>Category wise overview</span>
+            </div>
+            <canvas id="chart" height="160"></canvas>
+          </div>
+
+          <div class="panel">
+            <div class="head">
+              <h3>Quick Summary</h3>
+              <span>Live insights</span>
+            </div>
+            <div class="summary-grid" id="summaryGrid"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="toprow">
+            <div class="head" style="margin:0">
+              <h3>Transactions</h3>
+              <span>Search, view, and delete</span>
+            </div>
+            <input class="search" id="searchBox" placeholder="Search category or description..." />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="txBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="add" class="tab">
+        <div class="panel">
+          <div class="head">
+            <h3>Add Transaction</h3>
+            <span>Store useful daily information</span>
+          </div>
+          <form id="txForm" class="form">
+            <div class="field">
+              <label>Type</label>
+              <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Amount (₹)</label>
+              <input id="amount" type="number" min="1" step="0.01" placeholder="Enter amount" required />
+            </div>
+            <div class="field">
+              <label>Category</label>
+              <select id="category">
+                <option>Food</option>
+                <option>Transport</option>
+                <option>Entertainment</option>
+                <option>Shopping</option>
+                <option>Bills</option>
+                <option>Health</option>
+                <option>Education</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Description</label>
+              <input id="desc" type="text" placeholder="e.g. Metro recharge, lunch, fee..." />
+            </div>
+            <div class="field full">
+              <button class="primary" type="submit">Save Transaction</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="budgets" class="tab">
+        <div class="panel">
+          <div class="head">
+            <h3>Budget Limits</h3>
+            <span>Edit category budgets anytime</span>
+          </div>
+          <div class="budget-grid" id="budgetGrid"></div>
+        </div>
+      </section>
+
+      <section id="goals" class="tab">
+        <div class="grid2">
+          <div class="panel">
+            <div class="head">
+              <h3>Savings Goals</h3>
+              <span>Build something meaningful</span>
+            </div>
+            <form id="goalForm" class="form" style="margin-bottom:14px">
+              <div class="field">
+                <label>Goal name</label>
+                <input id="goalName" type="text" placeholder="Trip, laptop, emergency fund" required />
+              </div>
+              <div class="field">
+                <label>Target amount (₹)</label>
+                <input id="goalTarget" type="number" min="1" step="0.01" placeholder="Enter target" required />
+              </div>
+              <div class="field full">
+                <button class="primary" type="submit">Add Goal</button>
+              </div>
+            </form>
+            <div class="goal-grid" id="goalGrid"></div>
+          </div>
+
+          <div class="panel">
+            <div class="head">
+              <h3>Money Tip</h3>
+              <span>Useful daily habit</span>
+            </div>
+            <div class="tip" id="tipBox"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="insights" class="tab">
+        <div class="grid2">
+          <div class="panel">
+            <div class="head">
+              <h3>Number Lab</h3>
+              <span>Prime, Armstrong, palindrome</span>
+            </div>
+            <input class="search" id="numInput" type="number" placeholder="Enter any positive integer" />
+            <button class="primary" id="analyzeBtn" style="margin-top:12px">Analyze Number</button>
+            <div class="result" id="numResult"></div>
+          </div>
+
+          <div class="panel">
+            <div class="head">
+              <h3>About This App</h3>
+              <span>Project strength</span>
+            </div>
+            <div class="mini" style="margin-bottom:12px">
+              <div><strong>Real use</strong><small>Track money daily</small></div>
+            </div>
+            <div class="mini" style="margin-bottom:12px">
+              <div><strong>Saved locally</strong><small>Works offline in browser</small></div>
+            </div>
+            <div class="mini" style="margin-bottom:12px">
+              <div><strong>Good for demo</strong><small>Looks professional and interactive</small></div>
+            </div>
+            <div class="mini">
+              <div><strong>Frontend only</strong><small>Perfect for GitHub Pages</small></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "arya_finance_pro_v1";
+    const defaultBudgets = {
+      Food: 5000,
+      Transport: 2000,
+      Entertainment: 1500,
+      Shopping: 3000,
+      Bills: 4000,
+      Health: 2000,
+      Education: 3000,
+      Other: 1000
+    };
+    const tips = [
+      "Track every expense for 7 days to understand your spending pattern.",
+      "Use a fixed monthly budget before buying anything extra.",
+      "Avoid impulse purchases by waiting 24 hours before buying.",
+      "Save a small amount immediately after income arrives.",
+      "Review your biggest spending category every week.",
+      "Emergency savings can protect you from sudden costs."
+    ];
+
+    let state = loadState();
+    let chart = null;
+
+    const $ = id => document.getElementById(id);
+
+    function loadState(){
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+      return {
+        dark: true,
+        transactions: [],
+        budgets: structuredClone(defaultBudgets),
+        goals: []
+      };
+    }
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function money(n){
+      return "₹" + Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showToast(msg){
+      $("toast").textContent = msg;
+      $("toast").classList.add("show");
+      setTimeout(() => $("toast").classList.remove("show"), 2200);
+    }
+
+    function totals(){
+      let income = 0, expense = 0;
+      state.transactions.forEach(t => t.type === "income" ? income += t.amount : expense += t.amount);
+      return { income, expense, balance: income - expense };
+    }
+
+    function savingsRate(income, expense){
+      if (!income) return 0;
+      return ((income - expense) / income) * 100;
+    }
+
+    function isPrime(n){
+      if (n < 2) return false;
+      for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+      return true;
+    }
+
+    function isArmstrong(n){
+      const s = String(n);
+      const p = s.length;
+      return n === [...s].reduce((sum, d) => sum + Math.pow(Number(d), p), 0);
+    }
+
+    function isPalindrome(n){
+      const s = String(n);
+      return s === [...s].reverse().join("");
+    }
+
+    function toBinary(n){
+      return Number(n).toString(2);
+    }
+
+    function greeting(){
+      const h = new Date().getHours();
+      $("greet").textContent = h < 12 ? "Good morning!" : h < 17 ? "Good afternoon!" : "Good evening!";
+      $("sub").textContent = "A smart dashboard to store and manage daily financial information.";
+    }
+
+    function getTopCategory(){
+      const map = {};
+      state.transactions.forEach(t => {
+        if (t.type === "expense") map[t.category] = (map[t.category] || 0) + t.amount;
+      });
+      const entries = Object.entries(map);
+      if (!entries.length) return "None";
+      entries.sort((a,b) => b[1] - a[1]);
+      return entries[0][0];
+    }
+
+    function renderStats(){
+      const { income, expense, balance } = totals();
+      $("incomeVal").textContent = money(income);
+      $("expenseVal").textContent = money(expense);
+      $("balanceVal").textContent = money(balance);
+      $("savingsVal").textContent = savingsRate(income, expense).toFixed(1) + "%";
+    }
+
+    function renderSummary(){
+      const { income, expense, balance } = totals();
+      const goalsCount = state.goals.length;
+      const txCount = state.transactions.length;
+      const overBudget = Object.entries(state.budgets).filter(([cat, lim]) => {
+        const spent = state.transactions.filter(t => t.type === "expense" && t.category === cat).reduce((s, t) => s + t.amount, 0);
+        return spent > lim;
+      }).length;
+
+      $("summaryGrid").innerHTML = `
+        <div class="mini"><div><strong>${txCount}</strong><small>Total transactions</small></div></div>
+        <div class="mini"><div><strong>${state.transactions.filter(t => t.type === "income").length}</strong><small>Income entries</small></div></div>
+        <div class="mini"><div><strong>${state.transactions.filter(t => t.type === "expense").length}</strong><small>Expense entries</small></div></div>
+        <div class="mini"><div><strong>${getTopCategory()}</strong><small>Top expense category</small></div></div>
+        <div class="mini"><div><strong>${goalsCount}</strong><small>Savings goals</small></div></div>
+        <div class="mini"><div><strong>${overBudget}</strong><small>Over-budget categories</small></div></div>
+      `;
+    }
+
+    function renderTransactions(){
+      const q = $("searchBox").value.trim().toLowerCase();
+      const list = [...state.transactions].reverse().filter(t =>
+        !q || t.category.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.type.toLowerCase().includes(q)
+      );
+
+      $("txBody").innerHTML = list.length ? "" : `<tr><td colspan="6">No transactions found</td></tr>`;
+
+      list.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.date}</td>
+          <td><span class="tag ${t.type}">${t.type}</span></td>
+          <td>${t.category}</td>
+          <td>${t.type === "income" ? "+" : "-"}${money(t.amount)}</td>
+          <td>${t.desc}</td>
+          <td><button class="action" data-id="${t.id}">Delete</button></td>
+        `;
+        $("txBody").appendChild(tr);
+      });
+
+      document.querySelectorAll(".action").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.id);
+          state.transactions = state.transactions.filter(t => t.id !== id);
+          saveState();
+          refreshAll();
+          showToast("Transaction deleted");
+        });
+      });
+    }
+
+    function renderBudgets(){
+      const spentMap = {};
+      state.transactions.forEach(t => {
+        if (t.type === "expense") spentMap[t.category] = (spentMap[t.category] || 0) + t.amount;
+      });
+
+      $("budgetGrid").innerHTML = "";
+      Object.entries(state.budgets).forEach(([cat, lim]) => {
+        const spent = spentMap[cat] || 0;
+        const pct = Math.min(100, (spent / lim) * 100);
+        const item = document.createElement("div");
+        item.className = "mini";
+        item.innerHTML = `
+          <div style="flex:1">
+            <strong>${cat}</strong>
+            <small>${money(spent)} spent of ${money(lim)}</small>
+            <div class="bar"><div style="width:${pct}%"></div></div>
+          </div>
+          <div style="min-width:80px;text-align:right"><strong>${pct.toFixed(0)}%</strong></div>
+        `;
+        $("budgetGrid").appendChild(item);
+      });
+    }
+
+    function renderGoals(){
+      const { income, expense } = totals();
+      const savings = income - expense;
+      $("goalGrid").innerHTML = "";
+
+      if (!state.goals.length) {
+        $("goalGrid").innerHTML = `<div class="mini"><div><strong>No goals yet</strong><small>Add a goal to track progress</small></div></div>`;
+        return;
+      }
+
+      state.goals.forEach((g, idx) => {
+        const pct = g.target > 0 ? Math.min(100, (savings / g.target) * 100) : 0;
+        const item = document.createElement("div");
+        item.className = "mini";
+        item.innerHTML = `
+          <div style="flex:1">
+            <strong>${g.name}</strong>
+            <small>${money(savings)} saved of ${money(g.target)}</small>
+            <div class="bar"><div style="width:${pct}%"></div></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;min-width:90px;justify-content:flex-end">
+            <strong>${pct.toFixed(0)}%</strong>
+            <button class="action" data-goal="${idx}">X</button>
+          </div>
+        `;
+        $("goalGrid").appendChild(item);
+      });
+
+      document.querySelectorAll("[data-goal]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.goals.splice(Number(btn.dataset.goal), 1);
+          saveState();
+          renderGoals();
+          renderSummary();
+          showToast("Goal removed");
+        });
+      });
+    }
+
+    function renderChart(){
+      const map = {};
+      Object.keys(state.budgets).forEach(k => map[k] = 0);
+      state.transactions.forEach(t => { if (t.type === "expense") map[t.category] += t.amount; });
+
+      if (chart) chart.destroy();
+      chart = new Chart($("chart"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(map),
+          datasets: [{
+            data: Object.values(map),
+            backgroundColor: ["#7c5cff","#35d0ba","#ff6b6b","#ffd166","#4dabf7","#f783ac","#845ef7","#51cf66"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: getComputedStyle(document.body).getPropertyValue("--text") }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTip(){
+      $("tipBox").textContent = tips[Math.floor(Math.random() * tips.length)];
+    }
+
+    function analyzeNumber(){
+      const n = parseInt($("numInput").value);
+      if (isNaN(n) || n < 0) {
+        $("numResult").innerHTML = "Enter a positive integer.";
+        return;
+      }
+      $("numResult").innerHTML = `
+        <strong>Analysis of ${n}</strong><br><br>
+        Prime: ${isPrime(n) ? "Yes" : "No"}<br>
+        Armstrong: ${isArmstrong(n) ? "Yes" : "No"}<br>
+        Palindrome: ${isPalindrome(n) ? "Yes" : "No"}<br>
+        Binary: ${toBinary(n)}<br>
+        Square Root: ${Math.sqrt(n).toFixed(4)}
+      `;
+    }
+
+    function refreshAll(){
+      renderStats();
+      renderSummary();
+      renderTransactions();
+      renderBudgets();
+      renderGoals();
+      renderChart();
+      saveState();
+    }
+
+    document.querySelectorAll(".menu-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        $(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    $("txForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const tx = {
+        id: Date.now(),
+        type: $("type").value,
+        amount: Number($("amount").value),
+        category: $("category").value,
+        desc: $("desc").value.trim() || "—",
+        date: new Date().toLocaleDateString("en-GB")
+      };
+      state.transactions.push(tx);
+      $("txForm").reset();
+      $("type").value = "income";
+      $("category").value = "Food";
+      refreshAll();
+      showToast(tx.type === "income" ? "Income saved" : "Expense saved");
+
+      if (tx.type === "expense") {
+        const spent = state.transactions
+          .filter(t => t.type === "expense" && t.category === tx.category)
+          .reduce((s, t) => s + t.amount, 0);
+        const lim = state.budgets[tx.category];
+        if (spent >= lim) showToast(`Over budget in ${tx.category}`);
+        else if (spent >= lim * 0.8) showToast(`${tx.category} budget nearly used`);
+      }
+    });
+
+    $("goalForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = $("goalName").value.trim();
+      const target = Number($("goalTarget").value);
+      if (!name || target <= 0) return;
+      state.goals.push({ name, target });
+      $("goalForm").reset();
+      refreshAll();
+      showToast("Goal added");
+    });
+
+    $("searchBox").addEventListener("input", renderTransactions);
+
+    $("themeToggle").addEventListener("click", () => {
+      state.dark = !state.dark;
+      document.body.classList.toggle("light", !state.dark);
+      $("themeToggle").textContent = state.dark ? "🌙 Dark Mode" : "☀ Light Mode";
+      saveState();
+      renderChart();
+    });
+
+    $("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "arya-finance-pro-data.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Data exported");
+    });
+
+    $("resetAll").addEventListener("click", () => {
+      if (confirm("Delete all stored data?")) {
+        state = { dark:true, transactions:[], budgets:structuredClone(defaultBudgets), goals:[] };
+        document.body.classList.remove("light");
+        $("themeToggle").textContent = "🌙 Dark Mode";
+        refreshAll();
+        showToast("All data cleared");
+      }
+    });
+
+    $("analyzeBtn").addEventListener("click", analyzeNumber);
+
+    greeting();
+    document.body.classList.toggle("light", !state.dark);
+    $("themeToggle").textContent = state.dark ? "🌙 Dark Mode" : "☀ Light Mode";
+    renderTip();
+    refreshAll();
+    setInterval(renderTip, 10000);
+  </script>
+</body>
+</html>
